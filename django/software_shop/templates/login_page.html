@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизуйся 🤨</title>
+</head>
+<body>
+    <p><strong>{{info.error}}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        <ul><label for="username">Введите логин</label>
+            <input type="text" id="username" name="username" minlength="3" maxlength="30" required="True">
+        </ul>
+
+        <ul><label for="password">Введите пароль</label>
+            <input type="text" id="password" name="password" required="True">
+        </ul>
+
+        <ul><button type="submit">Войти</button></ul>
+    </form>
+    <p align="left">{{info.message}}</p>
+    <a href="/registration">{{info.signup}}</a>
+</body>
+</html>

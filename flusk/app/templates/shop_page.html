@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title_shop %}
+    {{ super() }}
+{% endblock %}
+<body>
+    {% block pagename %}
+        <h1>Игры</h1>
+    {% endblock %}
+    {% block current_user %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block menu %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block content %}
+        <form method="get">
+            {% if p_games.page > p_games.total %}
+                <option hidden name="page" selected value="{{ p_games.pages[-1] }}">{{games.total}}</option>
+            {% else %}
+                <option hidden name="page" selected value="{{ p_games.page }}">{{games.page}}</option>
+            {% endif %}
+
+            <select name="size">
+                <option hidden selected value="{{ size }}">{{size}}</option>
+                <option  value="1">1</option>
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
+            <input type="submit" value="Применить"></input>
+        </form>
+
+        <div class="row">
+            <p>
+                {% if info.error %}
+                    {{info.error}}
+                {% endif %}
+                {{info.message}}
+                <ul>
+                    {% for game in games %}
+                        <p>
+                            <form method="post">
+                                {{ form.csrf_token }}
+                                {{game}}
+                                <input type="hidden" name="game_title" value="{{game.title}}">
+                                <button type="submit">Купить</button>
+                            </form>
+                        </p>
+                    {% endfor %}
+                </ul>
+            </p>
+        </div>
+
+
+        <ul>
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if games.has_prev %}
+                        <a class="page-link" href="?page={{ p_games.page - 1 }}&size={{size}}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo</span>
+                        </a>
+                    {% endif %}
+
+                    {% for i in p_games.pages %}
+                        {% if p_games.page == i %}
+                            {{ i }}
+                        {% elif i == none %}
+                            &#9...&#9
+                        {% else %}
+                            <a class="page-link" href="?page={{ i }}&size={{size}}">{{ i }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if p_games.has_next %}
+                        <a class="page-link" href="?page={{ p_games.page + 1 }}&size={{size}}" aria-label="Previous">
+                            <span aria-hidden="true">&raquo</span>
+                        </a>
+                    {% endif %}
+                </ul>
+            </nav>
+        </ul>
+
+    <p>
+            <a href="/"><button> Вернуться на главную</button></a>
+            <a href="/purchased_applications"><button>Перейти в корзину</button></a>
+        </p>
+    {% endblock %}
+</body>
+</html>

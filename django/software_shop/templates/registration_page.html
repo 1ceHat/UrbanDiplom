@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизуйся 🤨</title>
+</head>
+<body>
+    <h1>{{info.error}}</h1>
+    <p> <strong>
+        {{info.message}}
+    </p> </strong>
+    <a href="/login">{{info.login}}</a>
+    <form method="post">
+        {% csrf_token %}
+        <ul>
+            <label for="username">Введите логин</label>
+            <input type="text" id="username" name="username" minlength="3" maxlength="30">
+        </ul>
+
+        <ul>
+            <label for="password">Введите пароль</label>
+            <input type="text" id="password" name="password" minlength="8">
+        </ul>
+
+        <ul>
+            <label for="repeat_password">Повторите пароль</label>
+            <input id="repeat_password" minlength="8" name="repeat_password" type="text">
+        </ul>
+
+        <ul>
+            <label for="age">Введите возраст</label>
+            <input id="age" max="120" name="age" type="number">
+        </ul>
+
+        <ul>
+            <button type="submit">Войти</button>
+        </ul>
+    </form>
+</body>
+</html>

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title_shop %}
+    {{ super() }}
+{% endblock %}
+<body>
+    {% block pagename %}
+        <h1>Ваши приложения</h1>
+    {% endblock %}
+    {% block current_user %}
+        {{ super() }}
+    {% endblock %}
+
+    {% block menu %}
+        {{ super() }}
+    {% endblock %}
+
+
+    {% block content %}
+        {% if not user %}
+            <h2>
+                <p>
+                    Войдите в аккаунт, чтобы просмотреть купленные приложения.
+                </p>
+            </h2>
+        {% else %}
+            <div>
+                {% for app in applications %}
+                    <ul>
+                        <h3>{{app.title}}</h3>
+                    </ul>
+
+                {%endfor%}
+            </div>
+        {% endif %}
+        <p>
+            <a href="/"><button> Вернуться на главную</button></a>
+        </p>
+    {% endblock %}
+</body>
+</html>

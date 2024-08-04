@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title_shop %}
+    {{ block.super }}
+{% endblock %}
+<body>
+    {% block pagename %}
+        <h1>Игры</h1>
+    {% endblock %}
+    {% block current_user %}
+        {{ block.super }}
+    {% endblock %}
+
+    {% block menu %}
+        {{ block.super }}
+    {% endblock %}
+
+    {% block content %}
+        <form method="get">
+            {% if page_obj.number > p_games.num_pages %}
+                <option hidden name="page" selected value="{{ p_games.num_pages }}"></option>
+            {% else %}
+                <option hidden name="page" selected value="{{ page_obj.number }}"></option>
+            {% endif %}
+
+            <select name="size">
+                <option hidden selected value="{{ size }}">{{size}}</option>
+                <option  value="1">1</option>
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
+            <input type="submit" value="Применить"></input>
+        </form>
+
+        <div class="row">
+            <p>
+                {% if info.error %}
+                    {{info.error}}
+                {% endif %}
+                {{info.message}}
+                <ul>
+                    {% for game in page_obj %}
+                    <p>
+                        <form method="post">
+                        {{game}}
+                            {% csrf_token %}
+                            <input type="hidden" name="game_to_buy" value="{{game.id}}">
+                            <button type="submit">Купить</button>
+                        </form>
+                    </p>
+                    {% endfor %}
+                </ul>
+            </p>
+        </div>
+
+
+        {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&size={{ size }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo</span>
+                        </a>
+                    {% endif %}
+
+                    {% for i in page_obj.paginator.page_range %}
+                        {% if page_obj.number == i %}
+                            {{ i }}
+                        {% else %}
+                            <a class="page-link" href="?page={{ i }}&size={{ size }} ">{{ i }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&size={{ size }}" aria-label="Previous">
+                            <span aria-hidden="true">&raquo</span>
+                        </a>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    <p>
+            <a href="/"><button> Вернуться на главную</button></a>
+            <a href="/purchased_applications"><button>Перейти в корзину</button></a>
+        </p>
+    {% endblock %}
+</body>
+</html>

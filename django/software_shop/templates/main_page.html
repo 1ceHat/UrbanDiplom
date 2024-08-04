@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title_shop %}
+    {{ block.super }}
+{% endblock %}
+
+<body>
+    {% block pagename %}
+        {{ block.super }}
+    {% endblock %}
+    {% block current_user %}
+        {% if info.message %}
+            {{info.message}}
+        {% else %}
+            {{ block.super }}
+        {% endif %}
+    {% endblock %}
+
+    {% block menu %}
+        {{ block.super }}
+    {% endblock %}
+
+    {% block content %}
+        {{ block.super }}
+    {% endblock %}
+</body>
+</html>

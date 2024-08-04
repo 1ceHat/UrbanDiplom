@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизуйся 🤨</title>
+</head>
+<body>
+    {% if not user %}
+        {% if info %}
+            <p><strong>{{info.error}}</strong></p>
+            <p align="left">{{info.message}}</p>
+            <a href="/signup">{{info.signup}}</a>
+        {% endif %}
+        <form method="post">
+            {{ form.csrf_token }}
+            <ul>
+                <label for="username">Введите логин</label>
+                <input type="text" id="username" name="username" minlength="3" maxlength="30" required>
+            </ul>
+
+            <ul><label for="password">Введите пароль</label>
+                <input type="text" id="password" name="password" required>
+            </ul>
+
+            <ul><button type="submit">Войти</button></ul>
+        </form>
+    {% else %}
+        <p><strong> Авторизация уже была пройдена! </strong></p>
+        <a href="/"><button> Вернуться на главную страницу </button></a>
+    {% endif %}
+</body>
+</html>

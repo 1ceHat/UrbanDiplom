@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title_shop %}
+    {{ block.super }}
+{% endblock %}
+<body>
+    {% block pagename %}
+        <h1>Ваши приложения</h1>
+    {% endblock %}
+    {% block current_user %}
+        {{ block.super }}
+    {% endblock %}
+
+    {% block menu %}
+        {{ block.super }}
+    {% endblock %}
+
+
+    {% block content %}
+        <h2>
+            <p>
+                {{error.error}}
+                <a href="/login"> {{error.login}}</a>
+            </p>
+        </h2>
+
+        <div>
+            {% for app in application%}
+                <ul>
+                    <h3>{{app.title}}</h3>
+                </ul>
+
+            {%endfor%}
+        </div>
+
+        <p>
+            <a href="/"><button> Вернуться на главную</button></a>
+        </p>
+    {% endblock %}
+</body>
+</html>

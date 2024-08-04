@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Авторизуйся 🤨</title>
+</head>
+<body>
+    {% if not user %}
+        {% if info %}
+            <h3>{{info.error}}</h3>
+            <p> <strong>
+                {{info.message}}
+            </strong></p>
+            <a href="/login">{{info.login}}</a>
+        {% endif %}
+
+        <form method="post">
+            <ul>
+                <label for="username">Введите логин</label>
+                <input type="text" id="username" name="username" minlength="3" maxlength="30" required>
+            </ul>
+
+            <ul>
+                <label for="password">Введите пароль</label>
+                <input type="text" id="password" name="password" minlength="8" required>
+            </ul>
+
+            <ul>
+                <label for="repeat_password">Повторите пароль</label>
+                <input id="repeat_password" minlength="8" name="repeat_password" type="text" required>
+            </ul>
+
+            <ul>
+                <label for="age">Введите возраст</label>
+                <input id="age" max="120" name="age" type="number" required>
+            </ul>
+
+            <ul>
+                <button type="submit">Войти</button>
+            </ul>
+        </form>
+    {% else %}
+        <p><strong> Авторизация уже была пройдена! </strong></p>
+        <a href="/"><button> Вернуться на главную страницу </button></a>
+    {% endif %}
+</body>
+</html>

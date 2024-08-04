@@ -1,0 +1,36 @@
+{%block title_shop%}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+            <title>Получи игру в пару кликов!</title>
+
+    </head>
+{%endblock%}
+
+<body>
+    {% block pagename %}
+        <h1>Главная страница</h1>
+    {% endblock %}
+
+    {% block current_user %}
+        {% if user %}
+                {{user}} | Баланс: {{user.balance}}
+        {% else %}
+                <a href="/login">Войти</a>
+        {% endif %}
+    {% endblock %}
+
+    {% block menu %}
+    <h5>
+        <ul>
+            <li><p><a href="/">Главная</a></p></li>
+            <li><p><a href="/shop">Магазин</a></p></li>
+            <li><p><a href="/purchased_applications">Корзина</a></p></li>
+        </ul>
+    </h5>
+    {% endblock %}
+
+    {% block content %}{% endblock %}
+</body>
+</html>
