@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .forms import *
 from django.core.paginator import Paginator
 from .models import *
@@ -16,7 +16,9 @@ def main_page(request):
 
 
 def shop_page(request):
+    global user_id
     info = {}
+    error = {}
     size = request.GET.get('size', 3)
     games = Game.objects.all()
     page_num = request.GET.get('page')
@@ -24,23 +26,20 @@ def shop_page(request):
     paginator = Paginator(games, per_page=size)
     page_obj = paginator.get_page(page_num)
 
-    #paginator.num
-
     if request.method == 'POST':
-        global user_id
         game_id = request.POST.get('game_to_buy')
         game = Game.objects.get(id=game_id)
         if user_id:
             if user_id.balance < game.cost:
-                info.update({
+                error.update({
                     'error': 'Недостаточно средств'
                 })
             elif game.buyer.filter(id=user_id.id).exists():
-                info.update({
+                error.update({
                     'error': 'У вас уже куплена эта игра'
                 })
             elif game.age_limited and user_id.age < 18:
-                info.update({
+                error.update({
                     'error': 'Вам не доступна эта игра'
                 })
             else:
@@ -51,8 +50,8 @@ def shop_page(request):
                 })
 
         else:
-            info.update({
-                'error': 'Вы не авторизованы. Пожалуйста, войдите в аккаунт.'
+            error.update({
+                'error': 'Вы не авторизованы. Пожалуйста, войдите в аккаунт или зарегистрируйтесь.'
             })
 
     context = {
@@ -61,27 +60,35 @@ def shop_page(request):
         'size': size,
         'p_games': paginator,
         'info': info,
+        'error': error,
         'user': user_id,
+        'paginator': paginator,
     }
     return render(request, 'shop_page.html', context=context)
 
 
 def users_game_page(request):
     global user_id
-    info = {}
+    error = {}
     users_game = None
-    if user_id is None:
-        info.update({
-            'error': 'Войдите в аккаунт, чтобы просмотреть ваши покупки',
-            'login': ' Войти'
-        })
-    else:
+    page_num = request.GET.get('page', 1)
+    paginator = None
+    page_obj = None
+    if user_id:
         users_game = Game.objects.filter(buyer=user_id)
+        paginator = Paginator(users_game, per_page=5)
+        page_obj = paginator.get_page(page_num)
+    else:
+        error.update({
+            'error': 'Вы не авторизованы. Пожалуйста, войдите в аккаунт или зарегистрируйтесь.'
+        })
 
     context = {
-        'error': info,
         'application': users_game,
+        'paginator': paginator,
+        'page_obj': page_obj,
         'user': user_id,
+        'error': error,
     }
     return render(request, 'users_game_page.html', context)
 
@@ -89,6 +96,7 @@ def users_game_page(request):
 def log_in(request):
     users = Buyer.objects.all()
     info = {}
+    error = {}
     if request.method == 'POST':
         form = UserAuthorise(request.POST)
         if form.is_valid():
@@ -96,27 +104,29 @@ def log_in(request):
             password = form.cleaned_data['password']
 
             if not users.filter(name=username).exists():
-                info.update({
+                error.update({
                     'error': 'Такого пользователя не существует',
                     'message': 'У вас ещё нет аккаунта?',
                     'signup': 'Зарегистрируйтесь!!'
                 })
             elif password != users.get(name=username).password:
-                info.update({'error': 'Неверный пароль'})
+                error.update({'error': 'Неверный пароль'})
             else:
-                info.update({'message': f'Приветствуем, {username}!'})
                 global user_id
                 user_id = users.get(name=username)
-                return render(request, 'main_page.html', context={'info': info})
+                return redirect('/')
     else:
         form = UserRegister()
     info.update({'form': form})
-    return render(request, 'login_page.html', context={'info': info})
+    context = {'info': info,
+               'error': error,}
+    return render(request, 'login_page.html', context=context)
 
 
 def sign_up(request):
     users = Buyer.objects.all()
     info = {}
+    error = {}
     if request.method == 'POST':
         form = UserRegister(request.POST)
         if form.is_valid():
@@ -126,19 +136,18 @@ def sign_up(request):
             age = form.cleaned_data['age']
 
             if users.filter(name=username).exists():
-                info.update({
+                error.update({
                     'error': 'Пользователь с таким именем существует',
-                    'message': 'У вас уже есть аккаунт?',
-                    'login': 'Войдите!'
                 })
             elif password != repeat_password:
-                info.update({'error': 'Пароли не совпадают'})
+                error.update({'error': 'Пароли не совпадают'})
             else:
-                info.update({'message': f'Приветствуем, {username}!'})
                 global user_id
                 user_id = Buyer.objects.create(name=username, password=password, age=age)
-                return render(request, 'main_page.html', context={'info': info})
+                return redirect('/')
     else:
         form = UserRegister()
     info.update({'form': form})
-    return render(request, 'registration_page.html', context={'info': info})
+    context = {'info': info,
+               'error': error,}
+    return render(request, 'registration_page.html', context=context)

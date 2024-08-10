@@ -1,40 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Авторизуйся 🤨</title>
-</head>
-<body>
-    <h1>{{info.error}}</h1>
-    <p> <strong>
-        {{info.message}}
-    </p> </strong>
-    <a href="/login">{{info.login}}</a>
-    <form method="post">
-        {% csrf_token %}
-        <ul>
-            <label for="username">Введите логин</label>
-            <input type="text" id="username" name="username" minlength="3" maxlength="30">
-        </ul>
+{% extends "base.html" %}
 
-        <ul>
-            <label for="password">Введите пароль</label>
-            <input type="text" id="password" name="password" minlength="8">
-        </ul>
+    {% block head %}
+        {{ block.super }}
+    {% endblock %}
 
-        <ul>
-            <label for="repeat_password">Повторите пароль</label>
-            <input id="repeat_password" minlength="8" name="repeat_password" type="text">
-        </ul>
+    <body>
+        {% block current_user %}
+            <ul class="nav">
+                <a class="nav-link"
+                  href="/login">Войти</a>
+            </ul>
+            {% block menu %}
+                {{ block.super }}
+            {% endblock %}
+        {% endblock %}
 
-        <ul>
-            <label for="age">Введите возраст</label>
-            <input id="age" max="120" name="age" type="number">
-        </ul>
 
-        <ul>
-            <button type="submit">Войти</button>
-        </ul>
-    </form>
-</body>
+        {% block content %}
+            <form action="" method="post" class="m-5 form-floating">
+                {% csrf_token %}
+                <div class="form-floating mb-1">
+                    <input type="text" class="form-control" id="username"
+                           name="username" minlength="3" maxlength="30"
+                           placeholder="Username" required>
+                    <label for="username" class="form-label">Введите логин</label>
+                </div>
+
+                <div class="form-floating mb-1 align-center">
+                    <input type="text" class="form-control" id="password"
+                           name="password"
+                           placeholder="Password" required>
+                    <label for="password" class="form-label">Введите пароль</label>
+                </div>
+
+                <div class="form-floating mb-1 align-center">
+                    <input type="text" class="form-control" id="repeat_password"
+                           minlength="8" name="repeat_password"
+                           placeholder="RepeatPassword" required>
+                    <label for="repeat_password" class="form-label">Повторите пароль</label>
+                </div>
+
+                <div class="form-floating mb-3 align-center">
+                    <input type="number" step="hidden" class="form-control" id="age"
+                           min="8" max="120" name="age"
+                           placeholder="Age" required>
+                    <label for="age" class="form-label">Введите возраст</label>
+                </div>
+                <button type="submit" class="btn btn-dark position-sticky start-50 translate-middle-x">Войти</button>
+            </form>
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+                    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+                    crossorigin="anonymous"></script>
+        {% endblock %}
+
+        {% block error_message %}
+            {{error.error}}
+            {% block error_alert %}
+                {{block.super}}
+            {% endblock %}
+        {% endblock %}
+    </body>
 </html>

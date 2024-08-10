@@ -1,41 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
 {% extends "base.html" %}
 
-{% block title_shop %}
+{% block head %}
     {{ block.super }}
 {% endblock %}
-<body>
-    {% block pagename %}
-        <h1>Ваши приложения</h1>
-    {% endblock %}
-    {% block current_user %}
-        {{ block.super }}
-    {% endblock %}
 
-    {% block menu %}
-        {{ block.super }}
-    {% endblock %}
+    <body>
+
+         {% block page %}
+            Корзина
+            {% block menu %}
+                {{ block.super }}
+            {% endblock %}
+        {% endblock %}
 
 
-    {% block content %}
-        <h2>
-            <p>
-                {{error.error}}
-                <a href="/login"> {{error.login}}</a>
-            </p>
-        </h2>
+        {% block content %}
+            {% if user %}
+                <div class="d-flex flex-column p-2">
+                    {% for game in page_obj %}
+                            <ul class="list-group accordion-flush list-group-horizontal m-1" id="gameParent{{game.id}}">
+                                <li class="list-group-item flex-grow-1">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed fw-semibold" type="button"
+                                                    data-bs-toggle="collapse" data-bs-target="#game{{game.id}}"
+                                                    aria-expanded="false" aria-controls="game{{game.id}}">
+                                                {{game.title}}
+                                            </button>
+                                        </h2>
+                                        <div id="game{{game.id}}" class="accordion-collapse collapse"
+                                             data-bs-parent="#gameParent{{game.id}}">
+                                            <div class="accordion-body"
+                                                style="height: 4.5rem; overflow: hidden; opacity: 50%;">{{game.description}}</div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endblock %}
 
-        <div>
-            {% for app in application%}
-                <ul>
-                    <h3>{{app.title}}</h3>
-                </ul>
+        {% block pagination %}
+            {{ block.super }}
+        {% endblock %}
 
-            {%endfor%}
-        </div>
 
-        <p>
-            <a href="/"><button> Вернуться на главную</button></a>
-        </p>
-    {% endblock %}
-</body>
+        {% block error_message %}
+            {{error.error}}
+            {% block error_alert %}
+                {{block.super}}
+            {% endblock %}
+        {% endblock %}
+    </body>
 </html>

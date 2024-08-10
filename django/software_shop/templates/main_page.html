@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 {% extends "base.html" %}
 
 {% block title_shop %}
@@ -5,23 +7,21 @@
 {% endblock %}
 
 <body>
-    {% block pagename %}
-        {{ block.super }}
-    {% endblock %}
-    {% block current_user %}
-        {% if info.message %}
-            {{info.message}}
-        {% else %}
+    {% block page %}
+        Главная
+        {% block menu %}
             {{ block.super }}
-        {% endif %}
+        {% endblock %}
     {% endblock %}
 
-    {% block menu %}
-        {{ block.super }}
-    {% endblock %}
 
     {% block content %}
         {{ block.super }}
+        <div class="m-3 p-2 bottom-50 start-50">
+            <h3 class="display-3">Приветствуем на нашем сайте!</h3>
+            <p class="lead">На этой странице могут выходить игровые новости, видео и скриншоты.</p>
+            <p class="lead">Также, здесь может быть ваша реклама :)</p>
+        </div>
     {% endblock %}
 </body>
 </html>
