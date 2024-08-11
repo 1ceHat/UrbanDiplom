@@ -30,17 +30,15 @@ def main_page():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup_page():
     global curr_user
-    info = {}
+    error = {}
     form = SignupForm()
     if not curr_user and request.method == 'POST':
         if form.validate_on_submit():
             user = db.session.scalars(db.select(Buyer).where(Buyer.name == form.username.data)).first()
             if user is not None:
-                info.update({'error': 'Такой пользователь уже существует',
-                             'message': 'У вас уже есть аккаунт?',
-                             'login': 'Авторизуйтесь!'})
+                error.update({'error': 'Такой пользователь уже существует'})
             elif form.password.data != form.repeat_password.data:
-                info.update({'error': 'Пароли не совпадают'})
+                error.update({'error': 'Пароли не совпадают'})
             else:
                 db.session.execute(db.insert(Buyer).values(name=form.username.data,
                                                            password=form.username.data,
@@ -50,7 +48,7 @@ def signup_page():
                 return redirect('/')
 
     context = {
-        'info': info,
+        'error': error,
         'user': curr_user,
         'form': form,
     }
@@ -60,34 +58,33 @@ def signup_page():
 @app.route('/login', methods=['get', 'post'])
 def login_page():
     global curr_user
-    info = {}
+    error = {}
     form = LoginForm(request.form)
     if not curr_user and request.method == 'POST':
         if form.validate_on_submit():
             user = db.session.scalars(db.select(Buyer).where(Buyer.name == form.username.data)).first()
             if user is None:
-                info.update({'error': 'Такого пользователя не существует',
-                             'message': 'У вас ещё нет аккаунта?',
-                             'signup': 'Зарегистрируйтесь!'})
+                error.update({'error': 'Такого пользователя не существует'})
             elif form.password.data != user.password:
-                info.update({'error': 'Неверный пароль'})
+                error.update({'error': 'Неверный пароль'})
             else:
                 curr_user = user
                 return redirect(url_for('main_page'))
     context = {
-        'info': info,
+        'error': error,
         'user': curr_user,
         'form': form,
     }
     return render_template('login_page.html', **context)
 
 
-@app.route('/shop', methods=['get', 'post'])
+@app.route('/shop/', methods=['get', 'post'])
 def shop_page():
     global curr_user
     # technical variabals
     games = db.session.scalars(db.select(Game)).all()
     info = {}
+    error = {}
     form = GameBuyForm()
 
     # variabals for paginate
@@ -95,47 +92,86 @@ def shop_page():
     page = 1 if request.args.get('page') is None else int(request.args.get('page'))
     sliced_games = games[page*size-size:page*size]
     paginated_games = Pagination(total=len(games), per_page=size, page=page)
+    if len(paginated_games.pages) < page:
+        sliced_games = games[len(paginated_games.pages)*size-size:len(paginated_games.pages)*size]
+        paginated_games = Pagination(total=len(games), per_page=size, page=len(paginated_games.pages))
 
     if curr_user and request.method == 'POST':
         if form.validate_on_submit():
-            game = db.session.scalars(db.select(Game).where(Game.title == form.game_title.data)).first()
+            game = db.session.scalars(db.select(Game).where(Game.id == form.game_id.data)).first()
             curr_user = db.session.get(Buyer, curr_user.id)
             if curr_user.balance < game.cost:
-                info.update({'error': 'Недостаточно средств!'})
+                error.update({'error': 'Недостаточно средств!'})
             elif game.age_limited and curr_user.age < 18:
-                info.update({'error': 'Вы не достигли возраста'})
+                error.update({'error': 'Вы не достигли возраста'})
             elif game in curr_user.buyers_game:
-                info.update({'error': 'У вас уже куплена эта игра'})
+                error.update({'error': 'У вас уже куплена эта игра'})
             else:
+                info.update({'message': f'{game.title} куплена!'})
                 curr_user.balance -= game.cost
                 curr_user.buyers_game.append(game)
                 db.session.commit()
     elif not curr_user:
-        info.update({'error': 'Войдите в аккаунт!'})
+        error.update({'error': 'Войдите в аккаунт или зарегистрируйтесь!'})
     context = {
         'user': curr_user,
         'info': info,
-        'games': sliced_games,
-        'p_games': paginated_games,
-        'size': size,
-        'page': page,
+        'error': error,
+        'paginator': paginated_games,
+        'page_obj': {
+            'items': sliced_games,
+            'number': paginated_games.page,
+            'has_other_pages': True if len(paginated_games.pages) > 1 else False,
+            'has_previous': paginated_games.has_prev,
+            'has_next': paginated_games.has_next,
+            'paginator': {'page_range': paginated_games.pages},
+            'previous_page_number': paginated_games.page-1,
+            'next_page_number': paginated_games.page+1,
+        },
+        'size': paginated_games.per_page,
         'form': form,
     }
     return render_template('shop_page.html', **context)
 
 
-@app.route('/purchased_applications')
+@app.route('/purchased_applications/')
 def users_game_page():
     global curr_user
-    applications = []
 
+    # technical variables
+    games = []
+    error = {}
     if curr_user:
         curr_user = db.session.get(Buyer, curr_user.id)
-        applications = curr_user.buyers_game
+        games = curr_user.buyers_game
+
+    else:
+        error.update({'error': 'Вы не авторизованы. Пожалуйста, войдите в аккаунт или зарегистрируйтесь.'})
+
+    # variables for paginate
+    size = 5
+    page = 1 if request.args.get('page') is None else int(request.args.get('page'))
+    sliced_games = games[page * size - size:page * size]
+    paginated_games = Pagination(total=len(games), per_page=size, page=page)
+    if len(paginated_games.pages) < page:
+        sliced_games = games[len(paginated_games.pages) * size - size:len(paginated_games.pages) * size]
+        paginated_games = Pagination(total=len(games), per_page=size, page=len(paginated_games.pages))
 
     context = {
         'user': curr_user,
-        'applications': applications,
+        'error': error,
+        'paginator': paginated_games,
+        'page_obj': {
+            'items': sliced_games,
+            'number': paginated_games.page,
+            'has_other_pages': True if len(paginated_games.pages) > 1 else False,
+            'has_previous': paginated_games.has_prev,
+            'has_next': paginated_games.has_next,
+            'paginator': {'page_range': paginated_games.pages},
+            'previous_page_number': paginated_games.page-1,
+            'next_page_number': paginated_games.page+1,
+        },
+        'size': paginated_games.per_page,
     }
     return render_template('users_game_page.html', **context)
 

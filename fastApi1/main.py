@@ -1,5 +1,4 @@
 import uvicorn
-from pprint import pprint
 
 from fastapi import FastAPI, HTTPException, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -135,8 +134,8 @@ async def get_purchased_applications(request: Request,
             'previous_page_number': paginated_games.page - 1,
             'next_page_number': paginated_games.page + 1,
         },
-        'size': paginated_games.size,
         'error': error,
+        'size': paginated_games.size,
     }
     return templates.TemplateResponse('users_game_page.html', context=context)
 
@@ -200,6 +199,7 @@ async def post_shop_page(request: Request,
         elif game in curr_user.buyers_game:
             error.update({'error': 'У Вас уже куплена эта игра'})
         else:
+            info.update({'message': f'{game.title} куплена!'})
             curr_user.balance -= game.cost
             curr_user.buyers_game.append(game)
             db.commit()

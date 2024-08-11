@@ -16,4 +16,4 @@ class LoginForm(FlaskForm):
 
 
 class GameBuyForm(FlaskForm):
-    game_title = StringField('game_title', validators=[DataRequired()])
+    game_id = IntegerField('game_id', validators=[DataRequired()])

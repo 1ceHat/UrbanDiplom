@@ -1,32 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Авторизуйся 🤨</title>
-</head>
-<body>
-    {% if not user %}
-        {% if info %}
-            <p><strong>{{info.error}}</strong></p>
-            <p align="left">{{info.message}}</p>
-            <a href="/signup">{{info.signup}}</a>
-        {% endif %}
-        <form method="post">
-            {{ form.csrf_token }}
-            <ul>
-                <label for="username">Введите логин</label>
-                <input type="text" id="username" name="username" minlength="3" maxlength="30" required>
-            </ul>
+{% extends "base.html" %}
 
-            <ul><label for="password">Введите пароль</label>
-                <input type="text" id="password" name="password" required>
-            </ul>
+    {% block head %}
+        {{ super() }}
+    {% endblock %}
 
-            <ul><button type="submit">Войти</button></ul>
-        </form>
-    {% else %}
-        <p><strong> Авторизация уже была пройдена! </strong></p>
-        <a href="/"><button> Вернуться на главную страницу </button></a>
-    {% endif %}
-</body>
+    <body>
+
+        {% block current_user %}
+            <ul class="nav">
+                <a class="nav-link"
+                  href="/signup">Зарегистрироваться</a>
+            </ul>
+        {% endblock %}
+        {% block menu %}
+            {{ super() }}
+        {% endblock %}
+
+        {% block content %}
+            <form action="" method="post" class="m-5 form-floating">
+                {{ form.csrf_token }}
+                <div class="form-floating mb-1">
+                    <input type="text" class="form-control" id="username"
+                           name="username" minlength="3" maxlength="30"
+                           placeholder="Username" required>
+                    <label for="username" class="form-label">Введите логин</label>
+                </div>
+
+                <div class="form-floating mb-3 align-center">
+                    <input type="text" class="form-control" id="password"
+                           name="password"
+                           placeholder="Password" required>
+                    <label for="password" class="form-label">Введите пароль</label>
+                </div>
+                <button type="submit" class="btn btn-dark position-sticky start-50 translate-middle-x">Войти</button>
+            </form>
+            <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+                    integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+                    crossorigin="anonymous"></script>
+        {% endblock %}
+
+        {% block error_message %}
+            {{error.error}}
+        {% endblock %}
+        {% block error_alert %}
+            {{ super() }}
+        {% endblock %}
+    </body>
 </html>
